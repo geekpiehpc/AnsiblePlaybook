@@ -1,0 +1,7 @@
+- hosts: hpc
+  become: yes
+  tasks:
+  - name: Auth
+    authorized_key:
+       user: root # can change to any user
+       key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
