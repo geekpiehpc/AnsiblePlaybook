@@ -1,0 +1,25 @@
+userlist:
+  - name: mhm2
+    passwd: '12348765'
+    uid: 1005
+
+  - name: wrf
+    passwd: '12348765'
+    uid: 1006
+
+  - name: bench
+    passwd: '12348765'
+    uid: 1007
+
+  - name: codechallenge
+    passwd: '12348765'
+    uid: 1008
+
+  - name: lammps
+    passwd: '12348765'
+    uid: 1009
+
+  - name: gpaw
+    passwd: '12348765'
+    uid: 1010
+

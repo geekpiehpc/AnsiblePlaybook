@@ -1,0 +1,43 @@
+  - hosts: hpc
+    vars_files:				# 导入文件变量
+        - userlist.yml
+    tasks:
+      - name: Make sure we have a 'wheel' group
+        group:
+          name: wheel
+          state: present
+
+      - name: Allow 'wheel' group to have passwordless sudo
+        lineinfile:
+          dest: /etc/sudoers
+          state: present
+          regexp: '^%wheel'
+          line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+
+      - name: Add user
+        user:
+          name: "{{ item.name }}"
+          groups: wheel
+          shell: /bin/bash
+          ssh_key_file: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+          createhome: yes
+          uid: "{{ item.uid }}"
+          home: /home/{{ item.name }}
+          password: "{{ item.passwd }}"
+          state: present
+        loop: "{{ userlist }}"
+
+      
+      - name: create key directory
+        action: file path=/home/{{ item.name }}/.ssh/ state=directory  owner={{ item.name }} group={{ item.name }} mode=0700
+        loop: "{{ userlist }}" 
+
+      - name: create key file
+        action: file path=/home/{{ item.name }}/.ssh/authorized_keys state=touch  owner={{ item.name }} group={{ item.name }} mode=0600
+        loop: "{{ userlist }}" 
+
+      - name: Set authorized key took from file
+        authorized_key:
+          user: "{{ item.name }}"
+          key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        loop: "{{ userlist }}" 
