@@ -1,0 +1,15 @@
+- hosts: hpc
+  become: true
+  tasks:
+    - name: Install Spack (1/2)
+      copy:
+        src: "spack.sh"
+        dest: '/tmp/'
+        owner: root
+        group: root
+        mode: 0777
+
+    - name: Install Spack (2/2)
+      shell: /tmp/spack.sh
+
+    

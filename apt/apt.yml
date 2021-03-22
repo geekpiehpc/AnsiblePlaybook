@@ -21,5 +21,15 @@
         - wget
         - htop
         - vim
+        - git
+        - neovim
+        - rsync
+        - tmux
+        - screen
+        - gcc
+        - g++
+        - cmake
+        - make
+        - clang
 
         
