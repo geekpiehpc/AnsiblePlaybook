@@ -1,0 +1,7 @@
+# - hosts: hpc
+#   tasks:
+#     - name: Save nvidia drive
+#       get_url:
+#         url: https://cn.download.nvidia.com/tesla/460.32.03/NVIDIA-Linux-x86_64-460.32.03.run
+#         dest: /tmp/
+#         mode: 0755
