@@ -1,0 +1,25 @@
+- hosts: hpc
+  become: true
+  tasks:
+    - name: Change apt source
+      copy:
+        src: "update_apt_source.sh"
+        dest: '/etc/apt'
+        owner: root
+        group: root
+        mode: 0777
+
+    - name: update apt source.list
+      shell: /etc/apt/update_apt_source.sh
+
+    - name: install apt packages
+      apt: 
+        pkg:
+        - screenfetch
+        - curl
+        - net-tools
+        - wget
+        - htop
+        - vim
+
+        
