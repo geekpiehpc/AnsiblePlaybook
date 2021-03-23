@@ -44,3 +44,4 @@
 
 [hpc]
 10.15.89.111 ansible_ssh_user="root" ansible_ssh_pass="12348765"
+10.15.89.112 ansible_ssh_user="root" ansible_ssh_pass="12348765"
