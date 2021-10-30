@@ -1,4 +1,5 @@
   - hosts: hpc
+    become: true
     vars_files:				# 导入文件变量
         - userlist.yml
     tasks:
