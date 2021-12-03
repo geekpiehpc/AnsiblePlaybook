@@ -1,0 +1,73 @@
+---
+- name: Enable NFSv2 and NFSv3
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Mask rpcbind socket
+      ansible.builtin.systemd:
+        name: rpcbind.socket
+        masked: no
+        state: started
+    - name: Mask rpcbind service
+      ansible.builtin.systemd:
+        name: rpcbind.service
+        masked: no
+        state: started
+
+    - name: Set NEED_STATD in nfs-common
+      ansible.builtin.lineinfile:
+        path: /etc/default/nfs-common
+        regexp: "^NEED_STATD="
+        line: NEED_STATD="no"
+    - name: Set NEED_IDMAPD in nfs-common
+      ansible.builtin.lineinfile:
+        path: /etc/default/nfs-common
+        regexp: "^NEED_IDMAPD="
+        line: NEED_IDMAPD="yes"
+
+    - name: Set RPCNFSDOPTS in nfs-kernel-server
+      ansible.builtin.lineinfile:
+        path: /etc/default/nfs-kernel-server
+        regexp: "^RPCNFSDOPTS="
+        line: RPCNFSDOPTS="-N 2 -N 3"
+        
+    - name: Set RPCMOUNTDOPTS in nfs-kernel-server
+      ansible.builtin.lineinfile:
+        path: /etc/default/nfs-kernel-server
+        regexp: "^RPCMOUNTDOPTS="
+        line: RPCMOUNTDOPTS="--manage-gids -N 2 -N 3"
+        
+    - name: Restart nfs-server.service
+      ansible.builtin.service:
+        name: nfs-server.service
+        state: restarted
+
+- name: Mount NFS
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create /mnt/nfs4 directory
+      ansible.builtin.file:
+        path: /mnt/nfs4
+        state: directory
+    - name: Create /mnt/home directory
+      ansible.builtin.file:
+        path: /mnt/home
+        state: directory
+    - name: Mount /mnt/nfs4
+      ansible.posix.mount:
+        src: "{{ nfs_server }}:/"
+        path: /mnt/nfs4
+        boot: no
+        opts: rw,noauto,x-systemd.automount
+        fstype: nfs
+        state: mounted
+    - name: Mount /mnt/home
+      ansible.posix.mount:
+        src: "{{ nfs_server }}:/home"
+        path: /mnt/home
+        opts: rw
+        fstype: nfs
+        state: mounted

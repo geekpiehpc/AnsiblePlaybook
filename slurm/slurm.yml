@@ -1,0 +1,55 @@
+---
+- name: Install Slurm
+  hosts: all
+  become: yes
+  vars:
+    slurm_controller:
+      - node1
+      - node2
+
+  tasks:
+    - ansible.builtin.fail: msg="slurm_controller is not defined"
+      when: slurm_controller is undefined or slurm_controller | length == 0
+    - name: Install Slurm
+      ansible.builtin.apt:
+        name: slurm-wlm
+        state: present
+    - name: Add slurm.conf
+      ansible.builtin.template:
+        src: slurm.conf.j2
+        dest: /etc/slurm-llnl/slurm.conf
+    - name: Add CgroupMountpoint to cgroup.conf
+      ansible.builtin.copy:
+        src: cgroup.conf
+        dest: /etc/slurm-llnl/cgroup.conf
+    # - name: Clear /var/spool/slurmctld
+    #   ansible.builtin.file:
+    #     path: /var/spool/slurmctld
+    #     state: absent
+    - name: Create /var/spool/slurmctld
+      ansible.builtin.file:
+        path: /var/spool/slurmctld
+        owner: slurm
+        group: slurm
+        state: directory
+    - name: Create /var/spool
+      ansible.builtin.file:
+        path: /var/spool
+        state: directory    
+    - name: Enable slurmctld
+      ansible.builtin.service:
+        name: slurmctld
+        state: restarted
+        enabled: yes
+      when: ansible_hostname in slurm_controller
+    # - name: Disable slurmctld
+    #   ansible.builtin.service:
+    #     name: slurmctld
+    #     state: stopped
+    #     enabled: no
+    #   when: ansible_hostname != slurm_controller
+    - name: Enable slurmd
+      ansible.builtin.service:
+        name: slurmd
+        state: restarted
+        enabled: yes

@@ -1,0 +1,20 @@
+---
+- name: Disable Ubuntu motd news
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: Remove execution permission
+    ansible.builtin.file:
+      path: /etc/update-motd.d/50-motd-news
+      mode: 'a-x'
+  - name: Disable motd-news.timer
+    ansible.builtin.systemd:
+      name: motd-news.timer
+      enabled: no
+      state: stopped
+  - name: Disable motd-news.service
+    ansible.builtin.systemd:
+      name: motd-news.service
+      enabled: no
+      state: stopped

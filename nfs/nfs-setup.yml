@@ -1,0 +1,43 @@
+---
+- name: Setup NFS Server
+  hosts: nfs_server
+
+  tasks:
+    - name: Install NFS Server
+      ansible.builtin.apt:
+        name: nfs-kernel-server
+        state: present
+      become: yes
+    - name: Create /srv/nfs4/home directory
+      ansible.builtin.file:
+        path: /srv/nfs4/home
+        state: directory
+      become: yes
+    - name: Export /srv/nfs4
+      ansible.builtin.lineinfile:
+        dest: /etc/exports
+        regexp: '^/srv/nfs4'
+        line: "/srv/nfs4 *(rw,sync,fsid=0,crossmnt,no_subtree_check)"
+        state: present
+      become: yes
+    - name: Export /srv/nfs4/home
+      ansible.builtin.lineinfile:
+        dest: /etc/exports
+        regexp: '^/srv/nfs4/home'
+        line: "/srv/nfs4/home *(rw,sync,no_subtree_check)"
+        state: present
+      become: yes
+    - name: Mask rpcbind service
+      ansible.builtin.systemd:
+        name: rpcbind.service
+        masked: yes
+      become: yes
+    - name: Mask rpcbind socket
+      ansible.builtin.systemd:
+        name: rpcbind.socket
+        masked: yes
+    - name: Start NFS Server
+      ansible.builtin.systemd:
+        name: nfs-server.service
+        state: restarted
+      become: yes

@@ -1,0 +1,21 @@
+---
+- name: Install MLNX OFED driver 5.4-3.0-3.0
+  hosts: mlnx
+
+  vars:
+    ofed_version: "5.4-3.1.0.0"
+    ofed_checksum: "sha256:a8540ff82c050d103d5a499cb7671657278cf2dbfcf9cd553f43c51cb798eede"
+    ofed_tgz_url: "https://content.mellanox.com/ofed/MLNX_OFED-{{ ofed_version }}/MLNX_OFED_LINUX-{{ ofed_version }}-ubuntu20.04-x86_64.tgz"
+
+  tasks:
+    - name: Download Mellanox OFED
+      ansible.builtin.get_url:
+        url: "{{ ofed_tgz_url }}"
+        dest: /tmp/MLNX_OFED_LINUX-{{ ofed_version }}-ubuntu20.04-x86_64.tgz
+        checksum: "{{ ofed_checksum }}"
+      register: download_result
+    - name: Extract Mellanox OFED
+      ansible.builtin.unarchive:
+        remote_src: yes
+        src: "{{ download_result.dest }}"
+        dest: /tmp/
